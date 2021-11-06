@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+#
+# listuphds [YEAR] - Lstup Holidays in Japan
+#   YEAR: This year(default) or YYYY
+#   15 months from January. Sundays list + National Holidays list.
+#   ※ need jpholiday module
+#
+# manontanto
+#
+import datetime as DT
+import locale
+import jpholiday
+import sys
+
+args = sys.argv
+if len(args) != 2:
+    print('Usage: listUp [YEAR]')
+    print('Usage: listUp [YEAR] | sort | cut -d \' \' -f 2-')
+    exit()
+
+locale.setlocale(locale.LC_TIME, 'ja_JP.UTF-8')
+year = int(sys.argv[1])
+
+# print Sundays
+s_dow = DT.datetime(year,1,1) # Get object of Jan. 1st.
+d = s_dow.weekday() # 0:Mon,1Tue,...,6:Sun
+fs = 7 - d # first Sunday of the year
+sd = DT.date(year, 1, fs) # first Sunday
+f = "{0} {1:02}/{2:02}({3})"
+count = 1
+while count < 66: # 53-weeks to 12/31. 66-weeks to 3/31.
+    print(f.format(sd.year, sd.month, sd.day, sd.strftime('%a'))) # 11/10(日)
+    sd = sd + DT.timedelta(days=7)
+    count += 1
+
+# print holidays
+hds = jpholiday.year_holidays(year) # holidays object
+f2 = "{0} {1:02}/{2:02}({3},{4})" # 11/03(水，文化の日)
+for hd in hds:
+    print( f2.format(hd[0].year, hd[0].month, hd[0].day, hd[0].strftime('%a'), hd[1]))
+
+# print Holidays of THE NEXT YEAR
+year += 1
+hds2 = jpholiday.year_holidays(year)
+for i in range(5):
+    print( f2.format(hds2[i][0].year, hds2[i][0].month, hds2[i][0].day, hds2[i][0].strftime('%a'), hds2[i][1]))
+
